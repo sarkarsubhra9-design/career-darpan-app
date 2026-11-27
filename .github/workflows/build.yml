@@ -28,8 +28,29 @@ jobs:
           gradle-version: '8.9'
 
       - name: Extract Android source
+        run: unzip -q Career_Darpan_Mobile_Build_Source.zip -d source
+
+      - name: Fix Java Kotlin compatibility
+        working-directory: source/CareerDarpan_Full_Source
         run: |
-          unzip -q Career_Darpan_Mobile_Build_Source.zip -d source
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("app/build.gradle")
+          s = p.read_text()
+          s = s.replace(
+              "android {",
+              """android {
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+              kotlinOptions {
+                  jvmTarget = '17'
+              }""",
+              1
+          )
+          p.write_text(s)
+          PY
 
       - name: Build APK
         working-directory: source/CareerDarpan_Full_Source
