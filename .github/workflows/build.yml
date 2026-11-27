@@ -1,0 +1,42 @@
+
+name: Build Career Darpan APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'Career_Darpan_Mobile_Build_Source.zip'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extract Android source
+        run: |
+          unzip -q Career_Darpan_Mobile_Build_Source.zip -d source
+
+      - name: Build APK
+        working-directory: source/CareerDarpan_Full_Source
+        run: gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Career-Darpan-APK
+          path: source/CareerDarpan_Full_Source/app/build/outputs/apk/debug/*.apk
